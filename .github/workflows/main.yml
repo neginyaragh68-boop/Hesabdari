@@ -27,8 +27,11 @@ jobs:
           
           echo "=== Files after extract ==="
           ls -la project/
-          echo "=== Looking for assets ==="
-          find project/ -name "index.html" -type f
+          
+          # Find the actual project directory
+          PROJECT_DIR=$(find project/ -name "settings.gradle" -type f | head -n 1 | xargs dirname)
+          echo "✅ Found project at: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
       
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -38,20 +41,15 @@ jobs:
       
       - name: Build APK
         run: |
-          cd project
+          cd "$PROJECT_DIR"
+          echo "=== Building in: $(pwd) ==="
+          
           GRADLEW_PATH=$(find . -name "gradlew" -type f | head -n 1)
           if [ -n "$GRADLEW_PATH" ]; then
             chmod +x "$GRADLEW_PATH"
-            cd $(dirname "$GRADLEW_PATH")
             ./gradlew assembleDebug
           else
-            echo "gradlew not found, installing Gradle..."
-            cd /tmp
-            wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
-            unzip gradle-8.0-bin.zip
-            export PATH=$PATH:/tmp/gradle-8.0/bin
-            echo "PATH=$PATH" >> $GITHUB_ENV
-            cd /home/runner/work/Hesabdari/Hesabdari/project
+            echo "gradlew not found, using system gradle"
             gradle assembleDebug
           fi
       
