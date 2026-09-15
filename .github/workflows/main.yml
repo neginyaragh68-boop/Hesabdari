@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: "📦 Extract ZIP"
+      - name: Extract ZIP
         run: |
           echo "=== Files before extract ==="
           ls -la
@@ -18,7 +18,7 @@ jobs:
           ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -type f | head -n 1)
           if [ -n "$ZIP_FILE" ]; then
             echo "✅ Found ZIP: $ZIP_FILE"
-            unzip -o "$ZIP_FILE" -d extracted_project
+            unzip -o "$ZIP_FILE" -d project
             rm -f "$ZIP_FILE"
           else
             echo "❌ No ZIP file found!"
@@ -26,58 +26,39 @@ jobs:
           fi
           
           echo "=== Files after extract ==="
-          ls -la extracted_project/
-          echo "=== Looking for gradlew ==="
-          find extracted_project/ -name "gradlew" -type f
-          echo "=== Looking for build.gradle ==="
-          find extracted_project/ -name "build.gradle" -type f
+          ls -la project/
+          echo "=== Looking for assets ==="
+          find project/ -name "index.html" -type f
       
-      - name: " Set up JDK 17"
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
       
-      - name: " Install Gradle"
+      - name: Build APK
         run: |
-          # Install Gradle manually
-          cd /tmp
-          wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
-          unzip gradle-8.0-bin.zip
-          export PATH=$PATH:/tmp/gradle-8.0/bin
-          echo "PATH=$PATH" >> $GITHUB_ENV
-          gradle --version
-      
-      - name: "🔨 Build APK"
-        run: |
-          # Find project root (where build.gradle is)
-          PROJECT_ROOT=$(find extracted_project/ -name "build.gradle" -type f | head -n 1 | xargs dirname)
-          echo "✅ Project root: $PROJECT_ROOT"
-          cd "$PROJECT_ROOT"
-          
-          echo "=== Files in project root ==="
-          ls -la
-          
-          # Try gradlew first, then gradle
-          if [ -f "gradlew" ]; then
-            echo "Using gradlew..."
-            chmod +x gradlew
-            ./gradlew assembleDebug --stacktrace
+          cd project
+          GRADLEW_PATH=$(find . -name "gradlew" -type f | head -n 1)
+          if [ -n "$GRADLEW_PATH" ]; then
+            chmod +x "$GRADLEW_PATH"
+            cd $(dirname "$GRADLEW_PATH")
+            ./gradlew assembleDebug
           else
-            echo "Using system gradle..."
-            gradle assembleDebug --stacktrace
+            echo "gradlew not found, installing Gradle..."
+            cd /tmp
+            wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
+            unzip gradle-8.0-bin.zip
+            export PATH=$PATH:/tmp/gradle-8.0/bin
+            echo "PATH=$PATH" >> $GITHUB_ENV
+            cd /home/runner/work/Hesabdari/Hesabdari/project
+            gradle assembleDebug
           fi
       
-      - name: "📱 Find and Upload APK"
-        run: |
-          echo "=== Searching for APK files ==="
-          find . -name "*.apk" -type f
-      
-      - name: "⬆️ Upload APK"
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: hesabdari-apk
+          name: hesabdari-offline-apk
           path: |
             **/app/build/outputs/apk/debug/*.apk
-            **/app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
