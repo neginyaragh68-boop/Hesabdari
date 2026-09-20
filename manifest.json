@@ -1,0 +1,37 @@
+{
+  "name": "نگین یراق - حسابداری خانگی",
+  "short_name": "نگین یراق",
+  "start_url": "./neginyarag-v2.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0b09",
+  "theme_color": "#0c0b09",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://github.com/user-attachments/assets/61356e2f-a449-4dbf-bb4b-23930e9277b1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://github.com/user-attachments/assets/61356e2f-a449-4dbf-bb4b-23930e9277b1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://github.com/user-attachments/assets/b8ee32aa-58fd-4c2d-b85a-4109feb0f0bd",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://github.com/user-attachments/assets/b8ee32aa-58fd-4c2d-b85a-4109feb0f0bd",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
